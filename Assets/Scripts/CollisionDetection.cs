@@ -4,14 +4,14 @@ namespace FinalProject
 {
     public class CollisionDetection
     {
-        public class CollisionInfo
+        public struct CollisionInfo
         {
-            public Vector2 Normal = Vector2.up;
-            public float Penetration = 0f;
-            public Vector2 Contact = Vector2.zero;
+            public Vector2 Normal;
+            public float Penetration;
+            public Vector2 Contact;
         }
-        
-        public static void GetNormalAndPenetration(PhysicsShape shapeA, PhysicsShape shapeB, out CollisionInfo info)
+
+        public static CollisionInfo GetNormalAndPenetration(PhysicsShape shapeA, PhysicsShape shapeB)
         {
             switch (shapeA)
             {
@@ -19,48 +19,52 @@ namespace FinalProject
                     switch (shapeB)
                     {
                         case CircleShape circleShapeB:
-                            GetNormalAndPenetration_CircleCircle(circleShapeA, circleShapeB, out info);
-                            return;
+                            return GetNormalAndPenetration_CircleCircle(circleShapeA, circleShapeB);
                         case PlaneShape planeShapeB:
-                            GetNormalAndPenetration_CirclePlane(circleShapeA, planeShapeB, out info);
-                            return;
+                            return GetNormalAndPenetration_CirclePlane(circleShapeA, planeShapeB);
                     }
+
                     break;
                 case PlaneShape planeShapeA:
                     switch (shapeB)
                     {
                         case CircleShape circleShapeB:
-                            GetNormalAndPenetration_CirclePlane(circleShapeB, planeShapeA, out info);
-                            return;
+                            return GetNormalAndPenetration_CirclePlane(circleShapeB, planeShapeA);
                         case PlaneShape:
                             Debug.LogError($"Plane-plane not supported!");
                             break;
                     }
+
                     break;
             }
-            
+
             Debug.LogError($"Some unsupported physics shape: {shapeA.name} or {shapeB.name}!");
-            info = new();
+            return new();
         }
-        
-        private static void GetNormalAndPenetration_CircleCircle(CircleShape c1, CircleShape c2, out CollisionInfo info)
+
+        private static CollisionInfo GetNormalAndPenetration_CircleCircle(CircleShape c1, CircleShape c2)
         {
-            info = new();
-            
+            CollisionInfo info = new();
+
             Vector2 difference = c1.GetCenter() - c2.GetCenter();
-            
+
             info.Normal = difference.normalized;
             info.Penetration = c1.GetRadius() + c2.GetRadius() - difference.magnitude;
+
+            return info;
         }
-        
-        private static void GetNormalAndPenetration_CirclePlane(CircleShape c, PlaneShape p, out CollisionInfo info)
+
+        private static CollisionInfo GetNormalAndPenetration_CirclePlane(CircleShape c, PlaneShape p)
         {
-            info = new();
+            CollisionInfo info = new();
+            
             float distance = Vector2.Dot(c.GetCenter(), p.GetNormal());
             var penetration = c.GetRadius() + p.GetOffset() - distance;
 
             info.Normal = p.GetNormal();
             info.Penetration = penetration;
+
+            return info;
         }
     }
 }

@@ -9,10 +9,11 @@ namespace FinalProject
         [SerializeField] private float _invMass = 1f;
         [SerializeField] private Vector2 _gravity = new(0, -9.8f);
         [SerializeField] private PhysicsShape _shape;
+        [SerializeField] private float _bounciness = 0.5f;
 
         private Vector2 _velocity = Vector2.zero;
         private Vector2 _acceleration = Vector2.zero;
-        private float _damping = 0.99f;
+        private float _damping = 0.8f;
         private Vector2 _accumulatedForces = Vector2.zero;
 
         private void FixedUpdate()
@@ -33,5 +34,6 @@ namespace FinalProject
         public void AddForce(Vector2 force) => _accumulatedForces += force;
         public Vector2 GetGravity() => _gravity;
         public float GetDamping() => _damping;
+        public float GetBounciness() => _bounciness;
     }
 }
