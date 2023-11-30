@@ -86,6 +86,29 @@ namespace SpatialPartition
             );
         }
 
+        public List<TItem> GetLargerNeighborhood(Vector2 position, int radius)
+        {
+            List<TItem> neighbors = new();
+            Vector2Int centerBoxCoords = GetBoxCoords(position);
+            
+            for (int x = 0; x < radius * 2; x++)
+            {
+                for (int y = 0; y < radius * 2; y++)
+                {
+                    var delta = new Vector2Int(
+                        x - radius,
+                        y - radius
+                    );
+                    
+                    neighbors.AddRange(GetBox(centerBoxCoords + delta));
+                }
+            }
+            
+            neighbors.AddRange(_universalItems);
+
+            return neighbors;
+        }
+
         public List<TItem> GetNeighbors(Vector2 position)
         {
             Vector2Int[] deltas =

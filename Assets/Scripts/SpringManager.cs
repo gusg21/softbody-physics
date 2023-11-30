@@ -16,7 +16,9 @@ namespace FinalProject
         private const float INTERACT_RADIUS = 0.5f;
 
         private List<Spring> _springs = new();
+        private Dictionary<PhysicsBody, List<PhysicsBody>> _network = new();
 
+        [SerializeField] private float _snapLength;
         [SerializeField] private SpringSettings _settings;
 
         private void FixedUpdate()
@@ -27,6 +29,12 @@ namespace FinalProject
                 var otherForce = ComputeForce(spring.A, spring.B, spring.RestLength, _settings);
                 spring.A.AddForce(-otherForce);
                 spring.B.AddForce(otherForce);
+                
+                // Snapping
+                if (Vector3.Distance(spring.A.transform.position, spring.B.transform.position) > _snapLength)
+                {
+                    springsToRemove.Add(spring);
+                }
 
                 // Interactivity
                 if (Input.GetMouseButton((int)MouseButton.RightMouse))
@@ -47,17 +55,57 @@ namespace FinalProject
                     // Debug.Log(Vector3.Distance(mouseWorldPos, closestPoint));
 
                     if (Vector3.Distance(mouseWorldPos, closestPoint) < INTERACT_RADIUS)
+                    {
                         springsToRemove.Add(spring);
+                    }
                 }
                 
             }
             
             foreach (var deadSpring in springsToRemove)
-                _springs.Remove(deadSpring);
+                RemoveSpring(deadSpring);
         }
 
-        public void AddSpring(Spring spring) => _springs.Add(spring);
+        public void AddSpring(Spring spring)
+        {
+            _springs.Add(spring);
+            
+            if (!_network.ContainsKey(spring.A)) _network.Add(spring.A, new());
+            if (!_network.ContainsKey(spring.B)) _network.Add(spring.B, new());
+            
+            _network[spring.A].Add(spring.B);
+            _network[spring.B].Add(spring.A);
+        }
+
+        public void RemoveSpring(Spring spring)
+        {
+            _springs.Remove(spring);
+
+            _network[spring.A].Remove(spring.B);
+            _network[spring.B].Remove(spring.A);
+        }
+        
         public List<Spring> GetSprings() => _springs;
+
+        public bool SpringExistsBetweenBodies(PhysicsBody a, PhysicsBody b)
+        {
+            if (!_network.ContainsKey(a)) return false;
+            
+            return _network[a].Contains(b);
+        }
+
+        public PhysicsBody GetMutualConnectionBetweenBodies(PhysicsBody a, PhysicsBody b)
+        {
+            if (!_network.ContainsKey(a) || !_network.ContainsKey(b)) return null;
+            
+            foreach (var aConnection in _network[a])
+            {
+                if (_network[b].Contains(aConnection))
+                    return aConnection;
+            }
+
+            return null;
+        }
 
         public SpringSettings GetSettings() => _settings;
         public void SetSettings(SpringSettings settings) => _settings = settings;

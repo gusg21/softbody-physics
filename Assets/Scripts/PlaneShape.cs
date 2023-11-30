@@ -5,6 +5,8 @@ namespace FinalProject
 {
     public class PlaneShape : PhysicsShape
     {
+        public PlaneShape() : base(PhysicsShapeType.PLANE) {}
+        
         public Vector2 GetNormal() => transform.up.normalized;
         public float GetOffset() => Vector2.Dot(GetNormal(), transform.position);
 

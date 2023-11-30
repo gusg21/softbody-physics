@@ -9,6 +9,8 @@ namespace FinalProject
     {
         [SerializeField] private float _radius;
 
+        public CircleShape() : base(PhysicsShapeType.CIRCLE) {}
+        
         public float GetRadius() => _radius;
         public Vector2 GetCenter() => transform.position;
         
