@@ -18,6 +18,7 @@ namespace FinalProject
         private List<Spring> _springs = new();
         private Dictionary<PhysicsBody, List<PhysicsBody>> _network = new();
 
+        [SerializeField] private float _snapLength;
         [SerializeField] private SpringSettings _settings;
 
         private void FixedUpdate()
@@ -28,6 +29,12 @@ namespace FinalProject
                 var otherForce = ComputeForce(spring.A, spring.B, spring.RestLength, _settings);
                 spring.A.AddForce(-otherForce);
                 spring.B.AddForce(otherForce);
+                
+                // Snapping
+                if (Vector3.Distance(spring.A.transform.position, spring.B.transform.position) > _snapLength)
+                {
+                    springsToRemove.Add(spring);
+                }
 
                 // Interactivity
                 if (Input.GetMouseButton((int)MouseButton.RightMouse))
@@ -56,7 +63,7 @@ namespace FinalProject
             }
             
             foreach (var deadSpring in springsToRemove)
-                _springs.Remove(deadSpring);
+                RemoveSpring(deadSpring);
         }
 
         public void AddSpring(Spring spring)
@@ -80,10 +87,17 @@ namespace FinalProject
         
         public List<Spring> GetSprings() => _springs;
 
-        public bool SpringExistsBetweenBodies(PhysicsBody a, PhysicsBody b) => _network[a].Contains(b);
+        public bool SpringExistsBetweenBodies(PhysicsBody a, PhysicsBody b)
+        {
+            if (!_network.ContainsKey(a)) return false;
+            
+            return _network[a].Contains(b);
+        }
 
         public PhysicsBody GetMutualConnectionBetweenBodies(PhysicsBody a, PhysicsBody b)
         {
+            if (!_network.ContainsKey(a) || !_network.ContainsKey(b)) return null;
+            
             foreach (var aConnection in _network[a])
             {
                 if (_network[b].Contains(aConnection))

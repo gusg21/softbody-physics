@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.Profiling;
 
@@ -75,6 +76,24 @@ namespace FinalProject
             Profiler.EndSample();
             
             return info;
+        }
+        
+        public static bool PointOverlapsShape(Vector3 position, PhysicsShape shape)
+        {
+            switch (shape.GetShapeType())
+            {
+                case PhysicsShapeType.PLANE:
+                    var planeShape = (PlaneShape)shape;
+                    float distance = Vector2.Dot(position, planeShape.GetNormal());
+                    return distance < planeShape.GetOffset();
+                case PhysicsShapeType.CIRCLE:
+                    var circleShape = (CircleShape)shape;
+                    return Vector2.Distance(position, circleShape.GetCenter()) < circleShape.GetRadius();
+                default:
+                    return false;
+            }
+
+            return false;
         }
     }
 }

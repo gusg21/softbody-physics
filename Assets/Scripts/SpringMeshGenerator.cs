@@ -64,6 +64,16 @@ namespace FinalProject
                     SpringManager.AddSpring(diagAtt);
                 }
 
+                if (x > 0 && y < height - 1)
+                {
+                    // Diagonal Reverse
+                    var diagAtt = new Spring();
+                    diagAtt.A = bodyA;
+                    diagAtt.B = _bodies[index + width - 1];
+                    diagAtt.RestLength = diagonalSpacing;
+                    SpringManager.AddSpring(diagAtt);
+                }
+
                 if (y < height - 1)
                 {
                     // Down

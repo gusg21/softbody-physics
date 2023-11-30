@@ -8,6 +8,7 @@ namespace FinalProject
 {
     public class MouseBodySpawner : MonoBehaviour
     {
+        public float StretchMaxRestLength = 4f;
         public float MaxRestLength = 3f;
         public float MinRestLength = 3f;
         
@@ -26,13 +27,17 @@ namespace FinalProject
 
         public int CompareBodyDistances(PhysicsBody a, PhysicsBody b)
         {
+            if (a.GetShape().GetShapeType() == PhysicsShapeType.PLANE) return -1;
+            if (b.GetShape().GetShapeType() == PhysicsShapeType.PLANE) return 1;
+            
             return Vector3.Distance(transform.position, a.transform.position)
                 .CompareTo(Vector3.Distance(transform.position, b.transform.position));
         }
 
         public void Update()
         {
-            if (Input.GetMouseButtonUp((int)MouseButton.LeftMouse))
+            var available = !CollisionManager.QueryPoint(transform.position);
+            if (Input.GetMouseButtonUp((int)MouseButton.LeftMouse) && available)
             {
                 if (_connections.Count >= 2)
                 {
@@ -69,6 +74,9 @@ namespace FinalProject
                 if (i < neighbors.Count)
                 {
                     var body = neighbors[i];
+                    
+                    if (body.GetShape().GetShapeType() == PhysicsShapeType.PLANE) continue;
+                    
                     if (Vector3.Distance(transform.position, body.transform.position) < MaxRestLength)
                         _connections.Add(body);
                 }
@@ -85,7 +93,8 @@ namespace FinalProject
                     var mutual = SpringManager.GetMutualConnectionBetweenBodies(a, b);
                     if (mutual != null)
                     {
-                        _connections.Add(mutual);
+                        if (Vector3.Distance(transform.position, mutual.transform.position) < StretchMaxRestLength)
+                            _connections.Add(mutual);
                     }
                 }
             }
@@ -93,10 +102,21 @@ namespace FinalProject
 
         private void OnDrawGizmos()
         {
-            foreach (var body in _connections)
+            if (CollisionManager.QueryPoint(transform.position))
             {
-                Gizmos.color = Color.magenta;
-                Gizmos.DrawLine(transform.position, body.transform.position);
+                Gizmos.color = Color.red;
+                Gizmos.DrawSphere(transform.position, 0.5f);
+            }
+            else
+            {
+                if (_connections.Count > 1)
+                {
+                    foreach (var body in _connections)
+                    {
+                        Gizmos.color = Color.magenta;
+                        Gizmos.DrawLine(transform.position, body.transform.position);
+                    }
+                }
             }
         }
     }

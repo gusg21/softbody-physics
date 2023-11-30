@@ -103,6 +103,21 @@ namespace FinalProject
             Profiler.EndSample();
         }
 
+        public bool QueryPoint(Vector2 position)
+        {
+            // Check against other spheres
+            Profiler.BeginSample("Get Neighbors");
+            var neighbors = Grid.GetNeighbors(position);
+            Profiler.EndSample();
+            foreach (var body2 in neighbors)
+            {
+                if (CollisionDetection.PointOverlapsShape(position, body2.GetShape()))
+                    return true;
+            }
+
+            return false;
+        }
+
         private void OnDrawGizmos()
         {
             Grid.DrawGizmos();
