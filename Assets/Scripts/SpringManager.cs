@@ -16,6 +16,7 @@ namespace FinalProject
         private const float INTERACT_RADIUS = 0.5f;
 
         private List<Spring> _springs = new();
+        private Dictionary<PhysicsBody, List<PhysicsBody>> _network = new();
 
         [SerializeField] private SpringSettings _settings;
 
@@ -47,7 +48,9 @@ namespace FinalProject
                     // Debug.Log(Vector3.Distance(mouseWorldPos, closestPoint));
 
                     if (Vector3.Distance(mouseWorldPos, closestPoint) < INTERACT_RADIUS)
+                    {
                         springsToRemove.Add(spring);
+                    }
                 }
                 
             }
@@ -56,8 +59,39 @@ namespace FinalProject
                 _springs.Remove(deadSpring);
         }
 
-        public void AddSpring(Spring spring) => _springs.Add(spring);
+        public void AddSpring(Spring spring)
+        {
+            _springs.Add(spring);
+            
+            if (!_network.ContainsKey(spring.A)) _network.Add(spring.A, new());
+            if (!_network.ContainsKey(spring.B)) _network.Add(spring.B, new());
+            
+            _network[spring.A].Add(spring.B);
+            _network[spring.B].Add(spring.A);
+        }
+
+        public void RemoveSpring(Spring spring)
+        {
+            _springs.Remove(spring);
+
+            _network[spring.A].Remove(spring.B);
+            _network[spring.B].Remove(spring.A);
+        }
+        
         public List<Spring> GetSprings() => _springs;
+
+        public bool SpringExistsBetweenBodies(PhysicsBody a, PhysicsBody b) => _network[a].Contains(b);
+
+        public PhysicsBody GetMutualConnectionBetweenBodies(PhysicsBody a, PhysicsBody b)
+        {
+            foreach (var aConnection in _network[a])
+            {
+                if (_network[b].Contains(aConnection))
+                    return aConnection;
+            }
+
+            return null;
+        }
 
         public SpringSettings GetSettings() => _settings;
         public void SetSettings(SpringSettings settings) => _settings = settings;

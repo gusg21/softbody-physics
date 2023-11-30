@@ -1,10 +1,12 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace FinalProject
 {
     public class PhysicsBody : MonoBehaviour
     {
+        public static List<PhysicsBody> AllBodies = new();
         
         [SerializeField] private float _invMass = 1f;
         [SerializeField] private Vector2 _gravity = new(0, -9.8f);
@@ -15,6 +17,10 @@ namespace FinalProject
         private Vector2 _acceleration = Vector2.zero;
         private float _damping = 0.8f;
         private Vector2 _accumulatedForces = Vector2.zero;
+
+        private void Start() => AllBodies.Add(this);
+
+        private void OnDestroy() => AllBodies.Remove(this);
 
         private void FixedUpdate()
         {
