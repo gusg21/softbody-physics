@@ -36,7 +36,7 @@ namespace FinalProject
 
         public void Update()
         {
-            var available = !CollisionManager.QueryPoint(transform.position);
+            var available = CanPlaceHere();
             if (Input.GetMouseButtonUp((int)MouseButton.LeftMouse) && available)
             {
                 if (_connections.Count >= 2)
@@ -58,6 +58,11 @@ namespace FinalProject
                     }
                 }
             }
+        }
+
+        private bool CanPlaceHere()
+        {
+            return !CollisionManager.QueryPoint(transform.position);
         }
 
         public void FixedUpdate()
@@ -102,7 +107,7 @@ namespace FinalProject
 
         private void OnDrawGizmos()
         {
-            if (CollisionManager.QueryPoint(transform.position))
+            if (!CanPlaceHere())
             {
                 Gizmos.color = Color.red;
                 Gizmos.DrawSphere(transform.position, 0.5f);
