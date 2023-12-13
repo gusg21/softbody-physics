@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.Profiling;
 using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
+using ColInfo = FinalProject.CollisionDetection.CollisionInfo;
 
 namespace FinalProject
 {
@@ -15,27 +16,26 @@ namespace FinalProject
         
         public SPGridGeneric<PhysicsBody> Grid = new(GRID_SIZE, GRID_SIZE);
 
-        private int _collisionCount = 0;
+        private List<ColInfo> _frameContacts = new();
+        private int _collisionCheckCount = 0;
 
-        public static void ApplyCollisionResolution(PhysicsBody body1, PhysicsBody body2)
+        public static ColInfo ApplyCollisionResolution(PhysicsBody body1, PhysicsBody body2)
         {
             const float EPSILON = 0.000001f;
 
             Profiler.BeginSample("Collision Detection");
             
-            CollisionDetection.CollisionInfo info;
-            {
-                info = CollisionDetection.GetNormalAndPenetration(body1.GetShape(), body2.GetShape());
-            }
+            ColInfo info;
+            info = CollisionDetection.GetNormalAndPenetration(body1.GetShape(), body2.GetShape());
 
             Profiler.EndSample();
             
             Vector2 normal = info.Normal;
             float penetration = info.Penetration;
-            Vector2 contact = info.Contact;
+            // Vector2 contact = info.Contact;
 
             if (penetration < 0) // Objects not actually overlapping
-                return;
+                return info;
 
             // DebugHelper.AddLingeringVector(contact, normal * info.Penetration * 10f);
             
@@ -54,7 +54,7 @@ namespace FinalProject
             if (closingVelocity < 0) // Objects not actually colliding
             {
                 Profiler.EndSample();
-                return;
+                return info;
             }
 
             body1.SetVelocity(body1.GetVelocity() -
@@ -63,6 +63,8 @@ namespace FinalProject
                               normal * (closingVelocity * -2) * s2MassRatio * body2.GetBounciness());
             
             Profiler.EndSample();
+
+            return info;
         }
 
         private void FixedUpdate()
@@ -79,23 +81,26 @@ namespace FinalProject
 
             Profiler.BeginSample("Collision");
             {
-                _collisionCount = 0;
-                int randomOffset = Random.Range(0, int.MaxValue);
+                _collisionCheckCount = 0;
+                _frameContacts.Clear();
+                
+                int randomIndexOffset = Random.Range(0, int.MaxValue);
                 var bodies = PhysicsBody.AllBodies;
                 for (var bodyIndex = 0; bodyIndex < bodies.Count; bodyIndex++)
                 {
-                    var wrappedIndex = (bodyIndex + randomOffset) % bodies.Count;
+                    var wrappedIndex = (bodyIndex + randomIndexOffset) % bodies.Count;
                     var body1 = bodies[wrappedIndex];
+                    
                     // Check against other spheres
-                    Profiler.BeginSample("Get Neighbors");
                     var neighbors = Grid.GetNeighbors(body1.transform.position);
-                    Profiler.EndSample();
                     foreach (var body2 in neighbors)
                     {
                         if (body1 != body2)
                         {
-                            ApplyCollisionResolution(body1, body2);
-                            _collisionCount += 1;
+                            var info = ApplyCollisionResolution(body1, body2);
+                            if (info.IsColliding())
+                                _frameContacts.Add(info);
+                            _collisionCheckCount += 1;
                         }
                     }
                 }
@@ -106,12 +111,23 @@ namespace FinalProject
         public bool QueryPoint(Vector2 position)
         {
             // Check against other spheres
-            Profiler.BeginSample("Get Neighbors");
             var neighbors = Grid.GetNeighbors(position);
-            Profiler.EndSample();
             foreach (var body2 in neighbors)
             {
                 if (CollisionDetection.PointOverlapsShape(position, body2.GetShape()))
+                    return true;
+            }
+
+            return false;
+        }
+        
+        public bool QueryCircle(Vector2 position, float radius)
+        {
+            // Check against other spheres
+            var neighbors = Grid.GetNeighbors(position);
+            foreach (var body2 in neighbors)
+            {
+                if (CollisionDetection.CircleOverlapsShape(position, radius, body2.GetShape()))
                     return true;
             }
 
@@ -125,7 +141,9 @@ namespace FinalProject
 
         private void OnGUI()
         {
-            GUILayout.Label("col/body: " + (_collisionCount / PhysicsBody.AllBodies.Count));
+            GUILayout.Label("checks/body: " + (_collisionCheckCount / PhysicsBody.AllBodies.Count));
+            GUILayout.Label("contacts: " + _frameContacts.Count);
+            GUILayout.Label("fps:" + 1f/Time.deltaTime);
         }
     }
 }

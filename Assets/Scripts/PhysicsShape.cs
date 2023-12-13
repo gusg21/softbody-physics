@@ -10,6 +10,7 @@ namespace FinalProject
     public class PhysicsShape : MonoBehaviour
     {
         private PhysicsShapeType _type;
+        private PhysicsBody _body;
 
         public PhysicsShape(PhysicsShapeType type)
         {
@@ -17,5 +18,7 @@ namespace FinalProject
         }
 
         public PhysicsShapeType GetShapeType() => _type;
+        public PhysicsBody GetBody() => _body;
+        public void SetBody(PhysicsBody body) => _body = body;
     }
 }
