@@ -26,15 +26,21 @@ namespace FinalProject
             List<Spring> springsToRemove = new();
             foreach (var spring in _springs)
             {
-                var otherForce = ComputeForce(spring.A, spring.B, spring.RestLength, _settings);
-                spring.A.AddForce(-otherForce);
-                spring.B.AddForce(otherForce);
                 
                 // Snapping
                 if (Vector3.Distance(spring.A.transform.position, spring.B.transform.position) > _snapLength)
                 {
                     springsToRemove.Add(spring);
                 }
+                else
+                {
+                    // Spring is NOT stretched to far, apply forces
+                    
+                    var otherForce = ComputeForce(spring.A, spring.B, spring.RestLength, _settings);
+                    spring.A.AddForce(-otherForce);
+                    spring.B.AddForce(otherForce);
+                }
+                
 
                 // Interactivity
                 if (Input.GetMouseButton((int)MouseButton.RightMouse))
@@ -118,17 +124,21 @@ namespace FinalProject
                 return new();
             }
 
-            Vector3 offset = a.transform.position - b.transform.position;
+            Vector3 aPos = a.transform.position;
+            Vector3 bPos = b.transform.position;
+            float stiffness = settings.Stiffness;
+
+            Vector3 offset = aPos - bPos;
             float length = offset.magnitude;
 
             float displacement = length - restLength;
-            float forceMagnitude = settings.Stiffness * displacement;
-            Vector3 forceDirection = offset.normalized;
-            Vector2 velocityDifference = b.GetVelocity() - a.GetVelocity();
-            Vector3 damping = (Vector3.Dot(forceDirection, velocityDifference) * settings.DampingRatio) *
-                              -forceDirection;
+            float springForceMagnitude = stiffness * displacement;
+            Vector3 springForceDir = offset.normalized;
+            Vector2 springVelocity = b.GetVelocity() - a.GetVelocity();
+            Vector3 dampingForce = Vector3.Dot(springForceDir, springVelocity) 
+                              * settings.DampingRatio * -springForceDir;
 
-            return (forceDirection * forceMagnitude) + damping;
+            return springForceDir * springForceMagnitude + dampingForce;
         }
 
         private void OnDrawGizmos()

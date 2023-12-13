@@ -18,9 +18,19 @@ namespace FinalProject
         private float _damping = 0.8f;
         private Vector2 _accumulatedForces = Vector2.zero;
 
-        private void Start() => AllBodies.Add(this);
+        private void Start()
+        {
+            AllBodies.Add(this);
+            
+            if (_shape != null) _shape.SetBody(this);
+        }
 
-        private void OnDestroy() => AllBodies.Remove(this);
+        private void OnDestroy()
+        {
+            AllBodies.Remove(this);
+            
+            if (_shape != null) _shape.SetBody(null);
+        }
 
         private void FixedUpdate()
         {

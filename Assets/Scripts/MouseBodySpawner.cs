@@ -62,7 +62,7 @@ namespace FinalProject
 
         private bool CanPlaceHere()
         {
-            return !CollisionManager.QueryPoint(transform.position);
+            return !CollisionManager.QueryCircle(transform.position, .5f);
         }
 
         public void FixedUpdate()

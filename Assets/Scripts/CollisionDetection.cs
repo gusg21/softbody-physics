@@ -8,9 +8,21 @@ namespace FinalProject
     {
         public struct CollisionInfo
         {
+            public PhysicsBody A;
+            public PhysicsBody B;
             public Vector2 Normal;
             public float Penetration;
             public Vector2 Contact;
+
+            public CollisionInfo SetAB(PhysicsBody a, PhysicsBody b)
+            {
+                A = a;
+                B = b;
+
+                return this;
+            }
+
+            public bool IsColliding() => Penetration > 0;
         }
 
         public static CollisionInfo GetNormalAndPenetration(PhysicsShape shapeA, PhysicsShape shapeB)
@@ -45,8 +57,13 @@ namespace FinalProject
             return new();
         }
 
-        private static CollisionInfo GetNormalAndPenetration_CircleCircle(CircleShape c1, CircleShape c2) =>
-            GetNormalAndPenetration_CircleCircle(c1.GetCenter(), c1.GetRadius(), c2.GetCenter(), c2.GetRadius());
+        private static CollisionInfo GetNormalAndPenetration_CircleCircle(CircleShape c1, CircleShape c2)
+        {
+            return GetNormalAndPenetration_CircleCircle(
+                c1.GetCenter(), c1.GetRadius(), 
+                c2.GetCenter(), c2.GetRadius()
+                ).SetAB(c1.GetBody(), c2.GetBody());
+        }
 
         private static CollisionInfo GetNormalAndPenetration_CircleCircle(Vector3 circle1Pos, float circle1Radius,
             Vector3 circle2Pos, float circle2Radius)
@@ -65,8 +82,13 @@ namespace FinalProject
             return info;
         }
 
-        private static CollisionInfo GetNormalAndPenetration_CirclePlane(CircleShape c, PlaneShape p) =>
-            GetNormalAndPenetration_CirclePlane(c.GetCenter(), c.GetRadius(), p.GetNormal(), p.GetOffset());
+        private static CollisionInfo GetNormalAndPenetration_CirclePlane(CircleShape c, PlaneShape p)
+        {
+            return GetNormalAndPenetration_CirclePlane(
+                c.GetCenter(), c.GetRadius(), 
+                p.GetNormal(), p.GetOffset()
+                ).SetAB(c.GetBody(), p.GetBody());
+        }
 
         private static CollisionInfo GetNormalAndPenetration_CirclePlane(Vector3 circlePos, float circleRadius,
             Vector3 planeNormal, float planeOffset)
@@ -113,14 +135,14 @@ namespace FinalProject
                     var planeShape = (PlaneShape)shape;
                     var info = GetNormalAndPenetration_CirclePlane(position, radius, planeShape.GetNormal(),
                         planeShape.GetOffset());
-                    return info.Penetration > 0;
+                    return info.IsColliding();
                 }
                 case PhysicsShapeType.CIRCLE:
                 {
                     var circleShape = (CircleShape)shape;
                     var info = GetNormalAndPenetration_CircleCircle(position, radius, circleShape.GetCenter(),
                         circleShape.GetRadius());
-                    return info.Penetration > 0;
+                    return info.IsColliding();
                 }
                 default:
                     return false;
