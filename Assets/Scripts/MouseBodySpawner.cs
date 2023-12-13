@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.UIElements;
@@ -8,28 +9,40 @@ namespace FinalProject
 {
     public class MouseBodySpawner : MonoBehaviour
     {
+        public int NodeCount = 10;
         public float StretchMaxRestLength = 4f;
         public float MaxRestLength = 3f;
         public float MinRestLength = 3f;
-        
+
         public PhysicsBody BodyPrefab;
         public CollisionManager CollisionManager;
         public SpringManager SpringManager;
 
         private PhysicsBody _myBody;
-        private LineRenderer _line;
+        private SpriteRenderer _xRenderer;
+        public Sprite XSprite;
+        public Sprite KnifeSprite;
+        public ParticleSystem Particles;
+        private TMP_Text _label;
         private List<PhysicsBody> _connections = new();
 
         private void Start()
         {
-            _line = GetComponent<LineRenderer>();
+            _label = GetComponentInChildren<TMP_Text>();
+            _xRenderer = GetComponent<SpriteRenderer>();
+            UpdateLabel();
+        }
+
+        private void UpdateLabel()
+        {
+            _label.text = NodeCount + " Left";
         }
 
         public int CompareBodyDistances(PhysicsBody a, PhysicsBody b)
         {
             if (a.GetShape().GetShapeType() == PhysicsShapeType.PLANE) return -1;
             if (b.GetShape().GetShapeType() == PhysicsShapeType.PLANE) return 1;
-            
+
             return Vector3.Distance(transform.position, a.transform.position)
                 .CompareTo(Vector3.Distance(transform.position, b.transform.position));
         }
@@ -37,13 +50,34 @@ namespace FinalProject
         public void Update()
         {
             var available = CanPlaceHere();
-            if (Input.GetMouseButtonUp((int)MouseButton.LeftMouse) && available)
+            
+            // Graphics
+            if (!available)
+            {
+                _xRenderer.enabled = true;
+                _xRenderer.sprite = XSprite;
+            }
+            else if (Input.GetMouseButton((int)MouseButton.RightMouse))
+            {
+                _xRenderer.enabled = true;
+                _xRenderer.sprite = KnifeSprite;
+            }
+            else
+            {
+                _xRenderer.enabled = false;
+            }
+            
+            // Interaction
+            if (Input.GetMouseButtonUp((int)MouseButton.LeftMouse) && available && NodeCount > 0)
             {
                 if (_connections.Count >= 2)
                 {
+                    NodeCount--;
+                    UpdateLabel();
+                    
                     _myBody = Instantiate(BodyPrefab);
                     _myBody.transform.position = transform.position;
-                    
+
                     foreach (var connection in _connections)
                     {
                         SpringManager.AddSpring(new Spring()
@@ -55,6 +89,12 @@ namespace FinalProject
                                 MinRestLength, MaxRestLength
                             )
                         });
+                    }
+
+                    if (_myBody.transform.position.y > FinishLine.FinishY)
+                    {
+                        var parts = Instantiate(Particles);
+                        parts.transform.position = transform.position;
                     }
                 }
             }
@@ -79,16 +119,18 @@ namespace FinalProject
                 if (i < neighbors.Count)
                 {
                     var body = neighbors[i];
-                    
+
                     if (body.GetShape().GetShapeType() == PhysicsShapeType.PLANE) continue;
-                    
+
                     if (Vector3.Distance(transform.position, body.transform.position) < MaxRestLength)
                         _connections.Add(body);
                 }
             }
-            
-            
-            // Helper strut
+
+
+            // Helper center strut:
+            // If we're bridging a gap between two connected nodes, also connect to the node that they
+            // mutually connect to.
             if (_connections.Count == 2)
             {
                 var a = _connections[0];
@@ -107,20 +149,12 @@ namespace FinalProject
 
         private void OnDrawGizmos()
         {
-            if (!CanPlaceHere())
+            if (_connections.Count > 1 && CanPlaceHere())
             {
-                Gizmos.color = Color.red;
-                Gizmos.DrawSphere(transform.position, 0.5f);
-            }
-            else
-            {
-                if (_connections.Count > 1)
+                foreach (var body in _connections)
                 {
-                    foreach (var body in _connections)
-                    {
-                        Gizmos.color = Color.magenta;
-                        Gizmos.DrawLine(transform.position, body.transform.position);
-                    }
+                    Gizmos.color = Color.magenta;
+                    Gizmos.DrawLine(transform.position, body.transform.position);
                 }
             }
         }
