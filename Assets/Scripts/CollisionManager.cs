@@ -19,6 +19,7 @@ namespace FinalProject
         private List<ColInfo> _frameContacts = new();
         private int _collisionCheckCount = 0;
 
+        // YES !! someone did simplify this code
         public static ColInfo ApplyCollisionResolution(PhysicsBody body1, PhysicsBody body2)
         {
             const float EPSILON = 0.000001f;
@@ -32,11 +33,12 @@ namespace FinalProject
             
             Vector2 normal = info.Normal;
             float penetration = info.Penetration;
-            // Vector2 contact = info.Contact;
+            // Vector2 contact = info.Contact; // commented
 
             if (penetration < 0) // Objects not actually overlapping
                 return info;
 
+            // commented code
             // DebugHelper.AddLingeringVector(contact, normal * info.Penetration * 10f);
             
             Profiler.BeginSample("Collision Resolution");
@@ -88,6 +90,7 @@ namespace FinalProject
                 var bodies = PhysicsBody.AllBodies;
                 for (var bodyIndex = 0; bodyIndex < bodies.Count; bodyIndex++)
                 {
+                    // this wrapped index does not make sense, but if it helped you, all good !
                     var wrappedIndex = (bodyIndex + randomIndexOffset) % bodies.Count;
                     var body1 = bodies[wrappedIndex];
                     

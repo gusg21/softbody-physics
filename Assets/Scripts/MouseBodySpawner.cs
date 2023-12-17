@@ -88,7 +88,7 @@ namespace FinalProject
                                 Vector3.Distance(_myBody.transform.position, connection.transform.position),
                                 MinRestLength, MaxRestLength
                             )
-                        });
+                        }); // ok
                     }
 
                     if (_myBody.transform.position.y > FinishLine.FinishY)
@@ -131,7 +131,7 @@ namespace FinalProject
             // Helper center strut:
             // If we're bridging a gap between two connected nodes, also connect to the node that they
             // mutually connect to.
-            if (_connections.Count == 2)
+            if (_connections.Count == 2) // this is clear
             {
                 var a = _connections[0];
                 var b = _connections[1];

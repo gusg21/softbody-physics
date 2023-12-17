@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace FinalProject
 {
-    public class CircleShape : PhysicsShape
+    public class CircleShape : PhysicsShape // OK
     {
         [SerializeField] private float _radius;
 

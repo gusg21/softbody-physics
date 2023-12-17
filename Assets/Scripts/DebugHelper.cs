@@ -12,6 +12,7 @@ namespace FinalProject
         public float Lifetime;
     }
     
+    // this class is very good and useful, way to go !
     public class DebugHelper : MonoBehaviour
     {
         private static List<LingeringVector> _lingeringVectors = new();

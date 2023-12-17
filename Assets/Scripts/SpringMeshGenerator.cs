@@ -14,6 +14,8 @@ namespace FinalProject
         
         private List<PhysicsBody> _bodies = new();
 
+        // I did not go into details, but it is always useful to have this kind of tool !
+
         private void Start()
         {
             GenerateMesh(MeshWidth, MeshHeight, MeshSpacing);

@@ -1,30 +1,4 @@
-#if UNITY_EDITOR
-using UnityEditor;
-using UnityEngine;
 
-namespace FinalProject
-{
-    [CustomEditor(typeof(SpringMeshGenerator))]
-    public class SpringMeshGeneratorEditor : Editor
-    {
-        public override void OnInspectorGUI()
-        {
-            base.OnInspectorGUI();
+// better to not submit dead code
 
-            SpringMeshGenerator mesh = target as SpringMeshGenerator;
-            if (mesh == null) return;
-
-            //     if (Application.isPlaying)
-            //     {
-            //         if (GUILayout.Button("Re-apply Spring Settings"))
-            //         {
-            //             mesh.ReapplySpringSettings();
-            //         }
-            //         
-            //         GUILayout.Label("Attachments: " + mesh.GetAttachmentCount());
-            //     }
-            // }
-        }
-    }
-}
-#endif
+// should be partially working on another feature branch in the real world

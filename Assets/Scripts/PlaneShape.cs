@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace FinalProject
 {
-    public class PlaneShape : PhysicsShape
+    public class PlaneShape : PhysicsShape // OK
     {
         public PlaneShape() : base(PhysicsShapeType.PLANE) {}
         

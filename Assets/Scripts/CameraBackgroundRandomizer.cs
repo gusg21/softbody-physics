@@ -4,6 +4,7 @@ using Random = UnityEngine.Random;
 
 namespace FinalProject
 {
+    // ok
     public class CameraBackgroundRandomizer : MonoBehaviour
     {
         private Camera _camera;

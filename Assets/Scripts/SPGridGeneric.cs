@@ -6,6 +6,10 @@ using UnityEngine;
 
 namespace SpatialPartition
 {
+    // I will not go into details in this file as it is similar to what you already
+    // did on your previous assignments, but I saw it working, and the choice of
+    // having a grid is a good choice. I think you have issues with the size
+    // size of the grid elements from what I could see but overall very good choice.
     [Serializable]
     public class SPGridGeneric<TItem>
     {

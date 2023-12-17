@@ -3,6 +3,8 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
+// nice, it is always useful to have this kind of features to see what's is happening
+// with a simple glance
 namespace FinalProject
 {
     [CustomEditor(typeof(SpringManager))]

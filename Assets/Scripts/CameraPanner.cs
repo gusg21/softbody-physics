@@ -13,12 +13,12 @@ public class CameraPanner : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Vector3 mousePos = Input.mousePosition;
+        Vector3 mousePos = Input.mousePosition; // you can set the Z on the same line
         mousePos.z = 0;
         Vector3 screenSize = Screen.safeArea.size;
         Vector3 movement = Vector3.zero;
-        var paddingPixels = 70;
-        var movementSpeed = 8f;
+        var paddingPixels = 70; // const
+        var movementSpeed = 8f; // const
 
         if (mousePos.x < paddingPixels)
             movement.x = -1;
@@ -29,6 +29,8 @@ public class CameraPanner : MonoBehaviour
         if (mousePos.y > screenSize.y - paddingPixels)
             movement.y = 1;
 
-        transform.position += movement * movementSpeed * Time.deltaTime;
+        // you should use brackets with your ifs
+
+        transform.position += movement * movementSpeed * Time.deltaTime; // good and efficient
     }
 }

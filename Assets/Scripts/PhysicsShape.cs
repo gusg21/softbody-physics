@@ -1,13 +1,13 @@
 using UnityEngine;
 
-namespace FinalProject
+namespace FinalProject // btw, good to use a namespace
 {
     public enum PhysicsShapeType
     {
-        PLANE, CIRCLE
+        PLANE, CIRCLE // you should put those on different lines in case you want to add more it's easier to merge
     }
     
-    public class PhysicsShape : MonoBehaviour
+    public class PhysicsShape : MonoBehaviour // I like this kind of code
     {
         private PhysicsShapeType _type;
         private PhysicsBody _body;

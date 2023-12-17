@@ -6,6 +6,7 @@ namespace FinalProject
 {
     public class CollisionDetection
     {
+        // YES - very useful to have this (usually called contacts)
         public struct CollisionInfo
         {
             public PhysicsBody A;
@@ -25,6 +26,8 @@ namespace FinalProject
             public bool IsColliding() => Penetration > 0;
         }
 
+        // YES - having a generic function for this is good
+        // in my favorite world of C++, you could use templates and have specializations just for allowed types
         public static CollisionInfo GetNormalAndPenetration(PhysicsShape shapeA, PhysicsShape shapeB)
         {
             switch (shapeA.GetShapeType())

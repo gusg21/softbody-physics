@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace FinalProject
 {
-    public class FinishLine : MonoBehaviour
+    public class FinishLine : MonoBehaviour // ok
     {
         public static float FinishY;
 

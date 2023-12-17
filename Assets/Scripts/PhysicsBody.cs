@@ -6,10 +6,10 @@ namespace FinalProject
 {
     public class PhysicsBody : MonoBehaviour
     {
-        public static List<PhysicsBody> AllBodies = new();
+        public static List<PhysicsBody> AllBodies = new(); // I see this is used, but I'm not sure this is necessary
         
         [SerializeField] private float _invMass = 1f;
-        [SerializeField] private Vector2 _gravity = new(0, -9.8f);
+        [SerializeField] private Vector2 _gravity = new(0, -9.8f); // gravity would be better as a global constant
         [SerializeField] private PhysicsShape _shape;
         [SerializeField] private float _bounciness = 0.5f;
 
@@ -34,10 +34,11 @@ namespace FinalProject
 
         private void FixedUpdate()
         {
-            Integrator.Integrate(this, Time.deltaTime);
-            ClearForces();
+            Integrator.Integrate(this, Time.deltaTime); // ok
+            ClearForces(); // ok
         }
 
+        // for this type of classes, I just put everything public and avoid this wall of setter/getter
         public PhysicsShape GetShape() => _shape;
         public float GetInverseMass() => _invMass;
         public float GetMass() => 1 / _invMass;
